@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Samad AI Assistant</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background:#0f172a;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.container{
+    width:90%;
+    max-width:500px;
+    background:#111827;
+    padding:20px;
+    border-radius:20px;
+    box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
+
+h1{
+    text-align:center;
+    color:#22c55e;
+}
+
+#chat{
+    height:300px;
+    overflow-y:auto;
+    background:#1e293b;
+    padding:10px;
+    border-radius:10px;
+    margin-bottom:15px;
+}
+
+.message{
+    margin:10px 0;
+    padding:10px;
+    border-radius:10px;
+}
+
+.user{
+    background:#2563eb;
+}
+
+.bot{
+    background:#16a34a;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:10px;
+    background:#22c55e;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Samad AI Assistant</h1>
+
+    <div id="chat"></div>
+
+    <button onclick="startListening()">🎤 Speak</button>
+</div>
+
+<script>
+
+const chat = document.getElementById("chat");
+
+function addMessage(text, sender){
+    const div = document.createElement("div");
+    div.classList.add("message");
+    div.classList.add(sender);
+    div.innerText = text;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function speak(text){
+
+    const speech = new SpeechSynthesisUtterance(text);
+
+    speech.lang = "hi-IN";
+
+    // female voice try
+    const voices = speechSynthesis.getVoices();
+
+    const femaleVoice = voices.find(
+        voice => voice.name.toLowerCase().includes("female")
+    );
+
+    if(femaleVoice){
+        speech.voice = femaleVoice;
+    }
+
+    speechSynthesis.speak(speech);
+}
+
+function botReply(message){
+
+    let reply = "";
+
+    if(message.includes("hello") || message.includes("hi")){
+        reply = "Hello Samad, main aap ki assistant hoon.";
+    }
+
+    else if(message.includes("kaise ho")){
+        reply = "Main bilkul theek hoon. Aap kaise hain?";
+    }
+
+    else if(message.includes("youtube")){
+        reply = "YouTube khol rahi hoon.";
+        window.open("https://youtube.com","_blank");
+    }
+
+    else if(message.includes("song") || message.includes("music")){
+
+        let query = message
+            .replace("song","")
+            .replace("music","");
+
+        reply = "Aap ka music search kar rahi hoon.";
+
+        window.open(
+        "https://www.youtube.com/results?search_query="+query,
+        "_blank"
+        );
+    }
+
+    else{
+        reply = "Mujhe samajh nahi aaya. Dobara boliye.";
+    }
+
+    addMessage(reply,"bot");
+    speak(reply);
+}
+
+function startListening(){
+
+    const recognition =
+    new(window.SpeechRecognition ||
+        window.webkitSpeechRecognition)();
+
+    recognition.lang = "hi-IN";
+
+    recognition.start();
+
+    recognition.onresult = function(event){
+
+        const text =
+        event.results[0][0].transcript;
+
+        addMessage(text,"user");
+
+        botReply(text.toLowerCase());
+    };
+}
+
+</script>
+
+</body>
+</html>
